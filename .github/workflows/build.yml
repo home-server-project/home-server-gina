@@ -6,7 +6,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '45 3 * * 6'  # Saturday at 3:45am UTC (approx 60 minutes after uCore images run)
+    - cron: '45 3 * * 6'  # Saturday at 3:45am UTC 
   push:
     branches:
       - main
