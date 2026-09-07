@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/home-server-project/.github/main/logo/banner-navy-mid.png" alt="Home Server Project banner">
+</p>
+
 # Home Server uCore
 [![Build signed Home Server uCore images](https://github.com/home-server-project/home-server-ucore/actions/workflows/build.yml/badge.svg)](https://github.com/home-server-project/home-server-ucore/actions/workflows/build.yml)
 
@@ -188,6 +192,24 @@ NVIDIA variants are not currently built because they are not needed for the syst
 If you need the same small toolset on an upstream uCore NVIDIA image, open a feature request, or create fork, corresponding build-matrix variant can be added later.
 
 ## Installation
+
+### Fresh install
+
+For a fresh installation, use the [Home Server uCore Builder](https://github.com/home-server-project/home-server-ucore-builder) to create a personalized [Home Server Installer](https://github.com/home-server-project/home-server-installer) ISO with your SSH public key.
+
+Boot the ISO and choose one of the five supported V1 targets:
+
+- **Home Server uCore LTS**
+- **Home Server uCore HCI LTS**
+- **uCore Minimal LTS**
+- **uCore LTS**
+- **uCore HCI LTS**
+
+The Installer downloads, verifies, and installs the selected image directly as the first bootable deployment. An internet connection is required during the normal installation path.
+
+Use the Builder README for ISO creation instructions and the Installer README for installation behavior, storage layout, SSH access, and current testing notes.
+
+### Existing compatible bootc/uCore installation
 
 For an existing compatible bootc/uCore installation:
 
