@@ -189,43 +189,7 @@ build $target_image=image_name $tag=default_tag:
 
     podman build "${PODMAN_BUILD_ARGS[@]}" .
 
-# Split the image for smaller updates (New)!
-rechunk $target_image=image_name $tag=default_tag:
-    #!/usr/bin/env bash
-
-    set -xeuo pipefail
-
-    # TODO: pin chunkah image to hash once mature enough
-    # You may run into space issues on github runners as we are making a
-    # complete copy of the image, which likely has no shared layers, unless your
-    # base image is also using chunkah
-    CHUNKAH_CONFIG_FILE="$(mktemp)"
-
-    # You may omit the current directory here if you are confident that you
-    # won't run out of space on /tmp for your image
-    CHUNKAH_OUTPUT_DIR="$(mktemp -d ./"${target_image}"_chunkah_XXXXXX)"
-
-    trap 'rm -f "${CHUNKAH_CONFIG_FILE}"; rm -rf "${CHUNKAH_OUTPUT_DIR}"' EXIT
-    podman inspect "${target_image}:${tag}" > "${CHUNKAH_CONFIG_FILE}"
-
-    podman run --rm \
-      --mount=type=image,src="${target_image}:${tag}",target=/chunkah \
-      -v "${CHUNKAH_CONFIG_FILE}:/chunkah-config.json:ro,Z" \
-      -v "${CHUNKAH_OUTPUT_DIR}:/run/out:Z" \
-      quay.io/coreos/chunkah:latest \
-      build \
-      --verbose \
-      --compressed \
-      --max-layers 128 \
-      --prune /sysroot/ \
-      --label ostree.commit- --label ostree.final-diffid- \
-      --config /chunkah-config.json \
-      --output oci:/run/out/chunked
-
-    CHUNKED_IMAGE="$(podman pull "oci:${CHUNKAH_OUTPUT_DIR}/chunked")"
-    podman tag "${CHUNKED_IMAGE}" "${target_image}:${tag}"
-
-# Split the image for smaller updates (Classical)!
+# Split the image into RPM-aware layers for smaller updates.
 ostree-rechunk $target_image=image_name $tag=default_tag:
     #!/usr/bin/env bash
 
@@ -262,6 +226,29 @@ ostree-rechunk $target_image=image_name $tag=default_tag:
       --label "org.opencontainers.image.version=${IMAGE_VERSION}" \
       --rootfs /rpm-ostree \
       --output "containers-storage:[overlay@/run/host-container-storage+/run/rpm-ostree-storage]localhost/${target_image}:${tag}"
+
+    OCI_LAYER_LIMIT="${OCI_LAYER_LIMIT:-128}"
+    layer_count="$(
+        podman image inspect "${target_image}:${tag}" \
+            | jq -r '.[0].RootFS.Layers | length'
+    )"
+
+    [[ "${layer_count}" =~ ^[0-9]+$ ]]
+    if (( layer_count > OCI_LAYER_LIMIT )); then
+        echo "ERROR: rechunked image has ${layer_count} layers; OCI maximum is ${OCI_LAYER_LIMIT}" >&2
+        exit 1
+    fi
+
+    echo "Rechunked image layers: ${layer_count} / OCI max ${OCI_LAYER_LIMIT} (RPM chunk target 127)"
+
+    if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+        {
+            echo "### ${target_image} rechunking"
+            echo
+            echo "- Rechunked OCI layers: ${layer_count} / ${OCI_LAYER_LIMIT} max"
+            echo "- RPM/OSTree chunk target: 127"
+        } >> "${GITHUB_STEP_SUMMARY}"
+    fi
 
 # Generate Default Tag
 [group('Utility')]
@@ -325,22 +312,22 @@ image_name $target_image=image_name:
 #
 # Parameters:
 #   $target_image - The name of the target image to be loaded or pulled.
-#   $tag - The tag of the target image to be loaded or pulled. Default is 'default_tag'.
+#   $tag - The tag for the image (default: $default_tag).
 #
 # Example usage:
 #   _rootful_load_image my_image latest
 #
 # Steps:
-# 1. Check if the script is already running as root or under sudo.
+# 1. Check if the script is already running as root or under sudo
 # 2. Check if target image is in the non-root podman container storage)
 # 3. If the image is found, load it into rootful podman using podman scp.
-# 4. If the image is not found, pull it from the remote repository into reootful podman.
+# 4. If the image is not found, pull it from the repository.
 
 _rootful_load_image $target_image=image_name $tag=default_tag:
     #!/usr/bin/env bash
     set -eoux pipefail
 
-    # Check if already running as root or under sudo
+    # Check if already root or running under sudo
     if [[ -n "${SUDO_USER:-}" || "${UID}" -eq "0" ]]; then
         echo "Already root or running under sudo, no need to load image from user podman."
         exit 0
@@ -372,7 +359,7 @@ _rootful_load_image $target_image=image_name $tag=default_tag:
 # Converts a container image to a bootable image
 # Parameters:
 #   target_image: The name of the image to build (ex. localhost/fedora)
-#   tag: The tag of the image to build (ex. latest)
+#   tag: The tag for the image (ex. latest)
 #   type: The type of image to build (ex. qcow2, raw, iso)
 #   config: The configuration file to use for the build (default: disk_config/disk.toml)
 
@@ -409,7 +396,7 @@ _build-bib $target_image $tag $type $config: (_rootful_load_image target_image t
 # Podman builds the image from the Containerfile and creates a bootable image
 # Parameters:
 #   target_image: The name of the image to build (ex. localhost/fedora)
-#   tag: The tag of the image to build (ex. latest)
+#   tag: The tag for the image (ex. latest)
 #   type: The type of image to build (ex. qcow2, raw, iso)
 #   config: The configuration file to use for the build (deafult: disk_config/disk.toml)
 
