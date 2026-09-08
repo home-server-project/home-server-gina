@@ -2,194 +2,116 @@
   <img src="https://raw.githubusercontent.com/home-server-project/.github/main/logo/banner-navy-mid.png" alt="Home Server Project banner">
 </p>
 
-# Home Server uCore
-[![Build signed Home Server uCore images](https://github.com/home-server-project/home-server-ucore/actions/workflows/build.yml/badge.svg)](https://github.com/home-server-project/home-server-ucore/actions/workflows/build.yml)
+# Home Server Gina
 
-A small downstream [Universal Blue uCore](https://github.com/ublue-os/ucore) image with a few practical tools for home-server administration.
+[![LTS build](https://github.com/home-server-project/home-server-gina/actions/workflows/build.yml/badge.svg)](https://github.com/home-server-project/home-server-gina/actions/workflows/build.yml)
 
 > [!IMPORTANT]
-> This is **not a fork of Fedora CoreOS or uCore**, and it is not a separate Linux distribution.
+> Home Server Gina is a thin downstream Home Server Project image layer. It is **not a fork of Fedora CoreOS or Universal Blue uCore**, and it does not replace their operating-system engineering.
 >
 > The kernel, Fedora CoreOS base, bootc/rpm-ostree stack, storage stack, virtualization stack, container stack, drivers and core uCore functionality remain upstream.
 
-The project exists because I wanted a few small utilities available natively on my own uCore home server and decided to make the resulting image available for anybody who finds the same combination useful.
+Home Server Gina is built on [Fedora CoreOS](https://fedoraproject.org/coreos/) through [Universal Blue uCore](https://github.com/ublue-os/ucore) LTS, with a deliberately small home-server administration and UPS tooling layer added on top.
+
+## Upstream foundation
+
+We chose Fedora CoreOS and Universal Blue uCore deliberately.
+
+Fedora CoreOS provides the atomic, image-based operating-system foundation and modern Fedora userspace. Universal Blue does excellent work turning that foundation into practical uCore server and HCI images, including the LTS image line used by Gina.
+
+Home Server Project stays intentionally close to that upstream work. Gina adds only a small set of host-side administration, diagnostics, UPS and convenience tools rather than trying to become a separate all-in-one server distribution.
 
 ```text
 Fedora CoreOS
       |
-Universal Blue uCore
+      v
+Universal Blue uCore / uCore HCI LTS
       |
-Home Server uCore
+      v
+Home Server Gina / Gina HCI
       |
-small host-admin tool layer
+      v
+small Home Server Project tool layer
 ```
 
-## What is added
+Home Server Gina is an independent community project and is not affiliated with or endorsed by Universal Blue or the Fedora Project.
 
-| Tool | Purpose |
-|---|---|
-| NUT | Native UPS monitoring and shutdown integration |
-| UPSide | Cockpit interface for NUT |
-| PowerTOP | Power diagnostics |
-| NetBird | Alternative to Tailscale  mesh-VPN client |
-| Micro | Friendly terminal text editor |
-| Superfile | Terminal file manager ('spf'- to start it) |
-| btop | System/resource monitoring |
-| fastfetch | Quick system information |
-| VirtUI Manager | Terminal libvirt/QEMU virtual machine manager — uCore HCI only |
+## Other Home Server Project OS
 
-The custom host-side software layer is declared in
-[`build_files/software.env`](build_files/software.env).
+Prefer a slower-moving Enterprise Linux 10 foundation with a broader built-in home-server toolkit? See [Home Server Rose](https://github.com/home-server-project/home-server-rose).
 
-That file is the first place to look if you want to see, add, remove, or
-change software included by this project.
-Some software is image-specific. Entries marked **HCI only** are built only
-into `home-server-ucore-hci` and are not included in the regular uCore image.
+Rose and Gina follow the same Home Server Project philosophy, but use different upstream foundations:
 
-Normal Fedora packages are installed from the Fedora/uCore package sources.
-External projects such as UPSide and Superfile are pinned to both a release
-version and an exact upstream commit and are monitored for updates by Renovate.
-
-Everything else remains as close as possible to upstream uCore.
+- **Rose** — AlmaLinux OS 10 / Enterprise Linux foundation, broader built-in host layer
+- **Gina** — Fedora CoreOS + Universal Blue uCore LTS foundation, thinner downstream layer and newer LTS kernel line
 
 ## Images
 
-uCore image:
+The repository builds two image variants in parallel.
 
-```text
-ghcr.io/home-server-project/home-server-ucore:lts
-```
+| Variant | LTS image | Upstream base | Purpose |
+|---|---|---|---|
+| Home Server Gina | `ghcr.io/home-server-project/home-server-ucore:lts` | `ghcr.io/ublue-os/ucore:lts` | Thin home-server administration layer on uCore LTS |
+| Home Server Gina HCI | `ghcr.io/home-server-project/home-server-ucore-hci:lts` | `ghcr.io/ublue-os/ucore-hci:lts` | Same Home Server layer on the upstream uCore HCI LTS image, plus Gina's HCI-only utility |
 
-Based on:
+> [!NOTE]
+> The repository is now named **Home Server Gina**, while the currently published GHCR image paths still retain the established `home-server-ucore*` names. This documentation pass does not change image identities, update targets or release tags.
 
-```text
-ghcr.io/ublue-os/ucore:lts
-```
+### Release channels
 
-uCore HCI image:
+| Channel | Moving tag | Source branch | Scheduled rebuild |
+|---|---|---|---|
+| LTS | `:lts` | `main` | Weekly on Saturday (UTC) |
 
-```text
-ghcr.io/home-server-project/home-server-ucore-hci:lts
-```
+Normal repository changes and manual workflow runs can also build the images.
 
-Based on:
+## What is included
 
-```text
-ghcr.io/ublue-os/ucore-hci:lts
-```
+Gina deliberately keeps its custom layer small, so the individual tools remain useful to show directly.
+
+| Tool | Purpose |
+|---|---|
+| NUT / NUT client | Native UPS monitoring and shutdown integration |
+| UPSide | Cockpit interface for NUT |
+| PowerTOP | Power diagnostics |
+| NetBird | Alternative mesh-VPN client alongside upstream Tailscale |
+| Micro | Friendly terminal text editor |
+| Superfile | Terminal file manager (`spf`) |
+| btop | System/resource monitoring |
+| fastfetch | Quick system information |
+| VirtUI Manager | Terminal libvirt/QEMU virtual machine manager — Gina HCI only |
+
+The Home Server Project software layer is declared in [`build_files/software.env`](build_files/software.env). Fedora packages follow the Fedora/uCore package sources. External projects such as UPSide, Superfile and VirtUI Manager are pinned to a release version and exact upstream commit, with Renovate monitoring those versions for updates.
+
+Everything else stays as close as possible to upstream uCore.
+
+Applications such as Jellyfin, Plex, databases, media automation, download stacks, application servers and large monitoring platforms belong in containers rather than being baked into Gina.
+
+## UPS and power
+
+Native UPS integration is one of the main reasons this small downstream layer exists.
+
+Gina includes NUT, the NUT client, UPSide and PowerTOP, but no machine-specific UPS configuration is baked into the image. UPS model, USB identity, credentials, shutdown thresholds and battery policy remain local to each server.
+
+A system with no UPS should work normally.
+
+PowerTOP is included for diagnostics only. Gina does not automatically enable `powertop --auto-tune`.
+
+For UPSide configuration and troubleshooting, see [`docs/nut-upside-coreos-troubleshooting.md`](docs/nut-upside-coreos-troubleshooting.md).
+
+## Networking
+
+Upstream uCore already includes Tailscale. Gina additionally provides the native [NetBird](https://github.com/netbirdio/netbird) client for users who prefer NetBird or operate their own NetBird infrastructure.
+
+No NetBird account, setup key or management-server configuration is included. NetBird is installed but deliberately left disabled and unconfigured.
 
 ## Kernel scope
 
-This project does not maintain or select its own kernel.
+Gina does not maintain, replace or independently select a kernel.
 
-LTS images includes kernel published by the upstream uCore LTS.
+The project builds only from the upstream **uCore LTS** and **uCore HCI LTS** image lines. The kernel delivered by those upstream LTS images is the kernel Gina receives.
 
-Kernel regressions and kernel issues belong upstream.
-
-## UPS support
-
-The primary reason this project exists is to make native UPS integration easier on an immutable uCore server.
-
-The image includes:
-
-```text
-nut
-nut-client
-UPSide
-```
-
-Nothing hardware-specific is baked in:
-
-```text
-UPS model
-USB VID/PID
-serial number
-ups.conf
-upsd.conf
-upsd.users
-UPS passwords
-shutdown thresholds
-battery thresholds
-```
-
-Those settings belong to the individual server. A system with no UPS should work normally.
-
-## UPSide
-
-[UPSide](https://github.com/deviationist/cockpit-upside) is installed as a system-wide Cockpit extension and uses NUT as its backend.
-
-UPSide is compiled in a separate build stage so Node.js, npm and its other build dependencies do not remain in the final operating-system image.
-
-[UPSide Config and troubleshooting](/docs/nut-upside-coreos-troubleshooting.md)
-
-## PowerTOP
-
-PowerTOP is included for diagnostics.
-
-```bash
-sudo powertop
-```
-
-This image intentionally does **not** enable:
-
-```bash
-powertop --auto-tune
-```
-
-If you want PowerTOP tuning on your own server, configure it locally.
-
-## NetBird
-
-uCore already includes Tailscale.
-
-This image additionally provides the native [NetBird](https://github.com/netbirdio/netbird) client for users who prefer NetBird to operate their own NetBird infrastructure.
-
-The image does not contain a NetBird account, setup key or management-server configuration.
-
-NetBird is installed but deliberately left disabled/unconfigured.
-
-## What belongs in this image?
-
-Small host-side administration, diagnostic or hardware-management utilities.
-
-Examples:
-
-```text
-small CLI diagnostics
-network administration tools
-hardware monitoring tools
-small storage/admin helpers
-similar lightweight utilities
-```
-
-The goal is to keep the custom layer small.
-
-## What does NOT belong here?
-
-Large applications and services that work well as containers will not be baked into the operating-system image.
-
-Examples:
-
-```text
-Jellyfin
-Plex
-Asterisk
-databases
-media automation stacks
-download stacks
-application servers
-large monitoring platforms
-```
-
-Those applications belong in Podman/Docker containers.
-
-This project is not intended to become an all-in-one home-server distribution.
-
-## NVIDIA images
-
-NVIDIA variants are not currently built because they are not needed for the systems this project is being developed and tested on.
-
-If you need the same small toolset on an upstream uCore NVIDIA image, open a feature request, or create fork, corresponding build-matrix variant can be added later.
+Kernel regressions and kernel issues remain upstream issues.
 
 ## Installation
 
@@ -197,7 +119,7 @@ If you need the same small toolset on an upstream uCore NVIDIA image, open a fea
 
 For a fresh installation, use the [Home Server uCore Builder](https://github.com/home-server-project/home-server-ucore-builder) to create a personalized [Home Server Installer](https://github.com/home-server-project/home-server-installer) ISO with your SSH public key.
 
-Boot the ISO and choose one of the five supported V1 targets:
+The current V1 installer still exposes the established image target names:
 
 - **Home Server uCore LTS**
 - **Home Server uCore HCI LTS**
@@ -205,18 +127,19 @@ Boot the ISO and choose one of the five supported V1 targets:
 - **uCore LTS**
 - **uCore HCI LTS**
 
-The Installer downloads, verifies, and installs the selected image directly as the first bootable deployment. An internet connection is required during the normal installation path.
+The installer downloads, verifies and installs the selected image directly as the first bootable deployment. An internet connection is required during the normal installation path.
 
-Use the Builder README for ISO creation instructions and the Installer README for installation behavior, storage layout, SSH access, and current testing notes.
+Use the Builder README for ISO creation instructions and the Installer README for installation behavior, storage layout, SSH access and current testing notes.
 
 ### Existing compatible bootc/uCore installation
 
-For an existing compatible bootc/uCore installation:
+For the regular Gina image:
 
 ```bash
 sudo bootc switch ghcr.io/home-server-project/home-server-ucore:lts
 ```
-for HCI:
+
+For Gina HCI:
 
 ```bash
 sudo bootc switch ghcr.io/home-server-project/home-server-ucore-hci:lts
@@ -226,104 +149,91 @@ Then reboot.
 
 ## Updates
 
-Scheduled GitHub Actions runs inspect the exact upstream digest.
+The scheduled GitHub Actions workflow rebuilds Gina weekly from the current upstream uCore LTS images. Repository changes and manual workflow runs can also build the images.
 
-If upstream did not change, no scheduled rebuild is made.
+Fedora/uCore system content follows the upstream base images. Home Server Project additions declared in `build_files/software.env` are maintained separately; external project versions are tracked by Renovate.
 
-If upstream changed:
+The build then rechunks, publishes and signs the resulting images.
+
+## Image signing and releases
+
+Published images are signed with Cosign using the Home Server Project signing key.
+
+The workflow signs the exact image digest published to GHCR. Successful builds also publish immutable tags in the existing format:
 
 ```text
-build
-rechunk
-publish
-sign
-verify
+lts-YYYYMMDD-<git-sha>
 ```
 
-Normal repository changes and manual runs still build.
-
-## Image signing
-
-Published images are signed with Cosign.
-
-The workflow signs the exact digest read back from GHCR after upload and verifies the resulting signature.
+A GitHub Release is created only after both the regular and HCI images are available with matching release tags.
 
 ## Issue policy
 
-Open an issue here when the problem is caused by something this repository adds.
+Open an issue in this repository when the problem is caused by something Home Server Gina adds or integrates.
 
 Examples:
 
-- NUT failed to install in this custom image
-- UPSide is missing or packaged incorrectly
-- NetBird integration is broken
-- one of the added utilities is missing
-- the custom GitHub Actions workflow failed
-- image signing/verification maintained by this repository is broken
+- NUT or another Gina-added package failed to install
+- UPSide, NetBird, Superfile or another added utility is missing or packaged incorrectly
+- VirtUI Manager integration is broken in Gina HCI
+- the Home Server Project build workflow fails
+- Gina image signing or publication is broken
 
-If the same problem happens on plain upstream uCore, it does not belong to this repository.
+If the same problem happens on plain upstream uCore or Fedora CoreOS, report it to the project that maintains that component.
 
-Examples:
+Kernel regressions, hardware drivers, Fedora CoreOS problems, bootc/rpm-ostree problems, Podman, Cockpit itself, libvirt/KVM and core uCore services remain upstream responsibilities.
 
-- kernel regressions
-- memory leaks
-- hardware drivers
-- Fedora CoreOS problems
-- bootc problems
-- rpm-ostree problems
-- ZFS
-- Podman
-- Cockpit itself
-- libvirt/KVM
-- uCore base services
-
-Report those to the project that actually maintains the component.
-
-### Upstream issue trackers
+<details>
+<summary><strong>Upstream issue trackers</strong></summary>
 
 - [Universal Blue uCore](https://github.com/ublue-os/ucore/issues)
 - [Fedora CoreOS](https://github.com/coreos/fedora-coreos-tracker/issues)
 - [bootc](https://github.com/bootc-dev/bootc/issues)
+- [rpm-ostree](https://github.com/coreos/rpm-ostree/issues)
 - [Cockpit](https://github.com/cockpit-project/cockpit/issues)
+- [Podman](https://github.com/containers/podman/issues)
 - [Network UPS Tools](https://github.com/networkupstools/nut/issues)
 - [UPSide](https://github.com/deviationist/cockpit-upside/issues)
 - [NetBird](https://github.com/netbirdio/netbird/issues)
 - [Micro](https://github.com/micro-editor/micro/issues)
-- [SuperFile](https://github.com/yorukot/superfile/issues)
-- [VirtUI-Manager](https://github.com/aginies/virtui-manager/issues)
+- [Superfile](https://github.com/yorukot/superfile/issues)
+- [VirtUI Manager](https://github.com/aginies/virtui-manager/issues)
+
+</details>
 
 ## Feature requests
 
-Small feature requests are welcome.
+Small host-side administration, diagnostic or hardware-management utilities can be considered for Gina.
 
-If it is a small host-administration utility that makes sense directly on a server OS, it can be considered.
-
-If it is an application/service that naturally belongs in a container, it will normally stay out of this image.
+Large applications and services that naturally belong in containers should stay out of the OS image. The goal is to keep the Gina-specific layer small and understandable.
 
 ## Architectures
 
-Currently supported:
+Currently published and tested by this project:
 
 ```text
 x86_64 / amd64
 ```
 
-ARM64 is intentionally not published because it is not currently tested here.
+ARM64 is not currently published by Gina.
 
-## Upstream
+## Upstream and references
 
-This project depends on:
+<details>
+<summary><strong>Project and upstream links</strong></summary>
 
 - [Fedora CoreOS](https://fedoraproject.org/coreos/)
 - [Universal Blue uCore](https://github.com/ublue-os/ucore)
 - [Universal Blue image-template](https://github.com/ublue-os/image-template)
-- [Network UPS Tools](https://github.com/networkupstools/nut)
-- [UPSide](https://github.com/deviationist/cockpit-upside)
-- [NetBird](https://github.com/netbirdio/netbird)
-- [Micro](https://github.com/micro-editor/MICRO)
-- [SuperFile](https://github.com/yorukot/superfile)
-- [VirtUI-Manager](https://github.com/aginies/virtui-manager)
+- [Home Server Rose](https://github.com/home-server-project/home-server-rose)
+- [Home Server Project](https://github.com/home-server-project)
+- [Home Server uCore Builder](https://github.com/home-server-project/home-server-ucore-builder)
+- [Home Server Installer](https://github.com/home-server-project/home-server-installer)
 
-The operating-system engineering belongs upstream.
+</details>
 
-This repository intentionally remains only a thin home-server convenience layer.
+See [`UPSTREAM.md`](UPSTREAM.md) for upstream attribution and relationship details.
+
+## License
+
+Apache-2.0. Third-party software included in the images retains its own upstream license.
