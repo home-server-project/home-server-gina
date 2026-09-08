@@ -1,5 +1,5 @@
 ---
-name: Build signed Home Server uCore images
+name: Build signed Home Server Gina images
 
 on:
   pull_request:
@@ -26,17 +26,19 @@ concurrency:
 
 jobs:
   build_push:
-    name: "Build and push ${{ matrix.image_name }}"
+    name: "Build and push ${{ matrix.display_name }}"
     runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
       matrix:
         include:
-          - image_name: home-server-ucore
+          - display_name: Home Server Gina
+            image_name: home-server-ucore
             ucore_image: ghcr.io/ublue-os/ucore:lts
 
-          - image_name: home-server-ucore-hci
+          - display_name: Home Server Gina HCI
+            image_name: home-server-ucore-hci
             ucore_image: ghcr.io/ublue-os/ucore-hci:lts
 
     permissions:
@@ -83,7 +85,7 @@ jobs:
           echo "UCORE_IMAGE=${{ matrix.ucore_image }}" >> "${GITHUB_ENV}"
           echo "IMAGE_REPOSITORY=${registry}/${image_name}" >> "${GITHUB_ENV}"
 
-          echo "Building:"
+          echo "Building ${{ matrix.display_name }}:"
           echo "  Upstream: ${{ matrix.ucore_image }}"
           echo "  Output:   ${registry}/${image_name}:${DEFAULT_TAG}"
 
@@ -171,8 +173,9 @@ jobs:
             --use-signing-config=false \
             --key env://COSIGN_PRIVATE_KEY \
             "${IMAGE_REGISTRY}/${IMAGE_NAME}@${DIGEST}"
+
   release:
-    name: Publish GitHub release
+    name: Publish Home Server Gina release
     needs: build_push
     if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-24.04
@@ -272,19 +275,19 @@ jobs:
           hci_tag="$(find_release_tag "home-server-ucore-hci")"
 
           if [[ -z "${ucore_tag}" ]]; then
-            echo "Could not find release tag for home-server-ucore."
+            echo "Could not find release tag for the current Gina standard image path."
             exit 1
           fi
 
           if [[ -z "${hci_tag}" ]]; then
-            echo "Could not find release tag for home-server-ucore-hci."
+            echo "Could not find release tag for the current Gina HCI image path."
             exit 1
           fi
 
           if [[ "${ucore_tag}" != "${hci_tag}" ]]; then
-            echo "Image release tags do not match:"
-            echo "  uCore:     ${ucore_tag}"
-            echo "  uCore HCI: ${hci_tag}"
+            echo "Gina image release tags do not match:"
+            echo "  Gina:     ${ucore_tag}"
+            echo "  Gina HCI: ${hci_tag}"
             exit 1
           fi
 
@@ -314,23 +317,23 @@ jobs:
           )"
 
           if [[ ! "${ucore_digest}" =~ ^sha256:[0-9a-f]{64}$ ]]; then
-            echo "Invalid uCore digest: ${ucore_digest}"
+            echo "Invalid Gina digest: ${ucore_digest}"
             exit 1
           fi
 
           if [[ ! "${hci_digest}" =~ ^sha256:[0-9a-f]{64}$ ]]; then
-            echo "Invalid uCore HCI digest: ${hci_digest}"
+            echo "Invalid Gina HCI digest: ${hci_digest}"
             exit 1
           fi
 
-          release_title="Home Server uCore LTS - ${release_date}"
+          release_title="Home Server Gina LTS - ${release_date}"
 
           cat > /tmp/release-notes.md <<EOF_NOTES
-          ## Home Server uCore LTS
+          ## Home Server Gina LTS
 
-          Signed Home Server uCore images built from the current upstream uCore LTS images.
+          Signed Home Server Gina images built directly from the current Universal Blue uCore LTS images.
 
-          ### uCore
+          ### Home Server Gina
 
           Current LTS image:
 
@@ -350,7 +353,7 @@ jobs:
           ${ucore_digest}
           \`\`\`
 
-          ### uCore HCI
+          ### Home Server Gina HCI
 
           Current LTS image:
 
@@ -372,19 +375,19 @@ jobs:
 
           ### Switching to the images
 
-          Standard uCore:
+          Home Server Gina:
 
           \`\`\`bash
           sudo bootc switch ${ucore_current}
           \`\`\`
 
-          uCore HCI:
+          Home Server Gina HCI:
 
           \`\`\`bash
           sudo bootc switch ${hci_current}
           \`\`\`
 
-          Both container images are signed with the repository Cosign signing key.
+          Both container images are signed with the Home Server Project Cosign signing key.
           EOF_NOTES
 
           if gh release view "${release_tag}" \
