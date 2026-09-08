@@ -51,11 +51,8 @@ The repository builds two image variants in parallel.
 
 | Variant | LTS image | Upstream base | Purpose |
 |---|---|---|---|
-| Home Server Gina | `ghcr.io/home-server-project/home-server-ucore:lts` | `ghcr.io/ublue-os/ucore:lts` | Thin home-server administration layer on uCore LTS |
-| Home Server Gina HCI | `ghcr.io/home-server-project/home-server-ucore-hci:lts` | `ghcr.io/ublue-os/ucore-hci:lts` | Same Home Server layer on the upstream uCore HCI LTS image, plus Gina's HCI-only utility |
-
-> [!NOTE]
-> The repository is now named **Home Server Gina**, while the currently published GHCR image paths still retain the established `home-server-ucore*` names. This documentation pass does not change image identities, update targets or release tags.
+| Home Server Gina | `ghcr.io/home-server-project/home-server-gina:lts` | `ghcr.io/ublue-os/ucore:lts` | Thin home-server administration layer on uCore LTS |
+| Home Server Gina HCI | `ghcr.io/home-server-project/home-server-gina-hci:lts` | `ghcr.io/ublue-os/ucore-hci:lts` | Same Home Server layer on the upstream uCore HCI LTS image, plus Gina's HCI-only utility |
 
 ### Release channels
 
@@ -117,12 +114,12 @@ Kernel regressions and kernel issues remain upstream issues.
 
 ### Fresh install
 
-For a fresh installation, use the [Home Server uCore Builder](https://github.com/home-server-project/home-server-ucore-builder) to create a personalized [Home Server Installer](https://github.com/home-server-project/home-server-installer) ISO with your SSH public key.
+For a fresh installation, use the [Home Server Gina Builder](https://github.com/home-server-project/home-server-gina-builder) to create a personalized [Home Server Installer](https://github.com/home-server-project/home-server-installer) ISO with your SSH public key.
 
-The current V1 installer still exposes the established image target names:
+The current V1 installer exposes five LTS targets:
 
-- **Home Server uCore LTS**
-- **Home Server uCore HCI LTS**
+- **Home Server Gina LTS**
+- **Home Server Gina HCI LTS**
 - **uCore Minimal LTS**
 - **uCore LTS**
 - **uCore HCI LTS**
@@ -133,16 +130,16 @@ Use the Builder README for ISO creation instructions and the Installer README fo
 
 ### Existing compatible bootc/uCore installation
 
-For the regular Gina image:
+For Home Server Gina:
 
 ```bash
-sudo bootc switch ghcr.io/home-server-project/home-server-ucore:lts
+sudo bootc switch ghcr.io/home-server-project/home-server-gina:lts
 ```
 
-For Gina HCI:
+For Home Server Gina HCI:
 
 ```bash
-sudo bootc switch ghcr.io/home-server-project/home-server-ucore-hci:lts
+sudo bootc switch ghcr.io/home-server-project/home-server-gina-hci:lts
 ```
 
 Then reboot.
@@ -227,7 +224,7 @@ ARM64 is not currently published by Gina.
 - [Universal Blue image-template](https://github.com/ublue-os/image-template)
 - [Home Server Rose](https://github.com/home-server-project/home-server-rose)
 - [Home Server Project](https://github.com/home-server-project)
-- [Home Server uCore Builder](https://github.com/home-server-project/home-server-ucore-builder)
+- [Home Server Gina Builder](https://github.com/home-server-project/home-server-gina-builder)
 - [Home Server Installer](https://github.com/home-server-project/home-server-installer)
 
 </details>
