@@ -6,10 +6,10 @@ set -ouex pipefail
 : "${IMAGE_REPOSITORY:?IMAGE_REPOSITORY must be set by the image build}"
 : "${UCORE_IMAGE:?UCORE_IMAGE must be set by the image build}"
 
-# Load the human-readable custom software declaration.
+# Load the human-readable Gina software declaration.
 source /ctx/software.env
 
-: "${UCORE_EXTRA_PACKAGES:?UCORE_EXTRA_PACKAGES must be set in software.env}"
+: "${GINA_EXTRA_PACKAGES:?GINA_EXTRA_PACKAGES must be set in software.env}"
 : "${NETBIRD_PACKAGE:?NETBIRD_PACKAGE must be set in software.env}"
 
 
@@ -26,10 +26,10 @@ dnf5 install -y jq
 
 
 # ============================================================
-# Native Fedora host tools
+# Native Fedora host tools added by Gina
 # ============================================================
 
-read -r -a extra_packages <<< "${UCORE_EXTRA_PACKAGES}"
+read -r -a extra_packages <<< "${GINA_EXTRA_PACKAGES}"
 
 dnf5 install -y "${extra_packages[@]}"
 
@@ -48,21 +48,30 @@ dnf5 install -y "${extra_packages[@]}"
 
 dnf5 --setopt=tsflags=noscripts install -y "${NETBIRD_PACKAGE}"
 
-# The generic image must not connect or auto-enable NetBird.
+# The generic Gina image must not connect or auto-enable NetBird.
 systemctl disable netbird.service 2>/dev/null || true
 
 
 # ============================================================
-# VirtUI Manager - uCore HCI only
+# VirtUI Manager - Gina HCI only
 # ============================================================
 #
 # VirtUI Manager belongs only on the virtualization-focused
-# uCore HCI image. The regular uCore image intentionally does
-# not receive it.
+# Gina HCI image. The regular Gina image intentionally does not receive it.
 
 if [[ "${UCORE_IMAGE}" == *"/ucore-hci:"* ]]; then
     dnf5 install -y /virtui-manager-rpm/virtui-manager-*.noarch.rpm
 fi
+
+
+# ============================================================
+# Gina identity
+# ============================================================
+#
+# Keep Fedora/uCore compatibility identity fields intact while making
+# the downstream presentation explicit as Home Server Gina / Gina HCI.
+
+bash /ctx/apply-gina-identity.sh
 
 
 # ============================================================
@@ -97,6 +106,15 @@ fi
 
 test -f /usr/share/cockpit/upside/manifest.json
 test -f /usr/share/licenses/superfile/LICENSE
+
+# Confirm the final image presents itself as Gina while preserving uCore identity.
+# shellcheck disable=SC1091
+source /usr/lib/os-release
+[[ "${ID:-}" == "fedora" ]]
+[[ "${VARIANT_ID:-}" == "ucore" ]]
+[[ "${HOME_SERVER_GINA_CHANNEL:-}" == "lts" ]]
+[[ "${HOME_SERVER_GINA_REPOSITORY:-}" == "https://github.com/home-server-project/home-server-gina" ]]
+[[ "${PRETTY_NAME:-}" == Home\ Server\ Gina* ]]
 
 
 # Deliberately NOT done here:
