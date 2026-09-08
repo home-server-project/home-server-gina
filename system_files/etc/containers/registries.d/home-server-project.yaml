@@ -1,13 +1,19 @@
 docker:
-  # Current Home Server Project Gina package paths.
-  # The published image names remain home-server-ucore* until the Stage 2 GHCR rename.
+  # Current Home Server Gina package paths.
+  ghcr.io/home-server-project/home-server-gina:
+    use-sigstore-attachments: true
+
+  ghcr.io/home-server-project/home-server-gina-hci:
+    use-sigstore-attachments: true
+
+  # Legacy Home Server Project package paths retained for migration/rollback.
   ghcr.io/home-server-project/home-server-ucore:
     use-sigstore-attachments: true
 
   ghcr.io/home-server-project/home-server-ucore-hci:
     use-sigstore-attachments: true
 
-  # Legacy personal packages retained during migration.
+  # Older personal package paths retained for migration/rollback.
   ghcr.io/iegorch86/home-server-ucore:
     use-sigstore-attachments: true
 
