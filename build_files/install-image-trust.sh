@@ -8,9 +8,9 @@ if [[ "$#" -lt 1 ]]; then
 fi
 
 POLICY="/etc/containers/policy.json"
-KEY="/usr/lib/pki/containers/iegorch86.pub"
+KEY="/usr/lib/pki/containers/home-server-project.pub"
 
-echo "Installing custom image signature trust"
+echo "Installing Home Server Project image signature trust"
 
 if [[ ! -f /ctx/cosign.pub ]]; then
     echo "ERROR: /ctx/cosign.pub is missing."
