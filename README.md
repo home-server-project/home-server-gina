@@ -228,7 +228,7 @@ ARM64 is not currently published by Gina.
 - [Home Server Rose](https://github.com/home-server-project/home-server-rose)
 - [Home Server Project](https://github.com/home-server-project)
 - [Home Server uCore Builder](https://github.com/home-server-project/home-server-ucore-builder)
-- [Home Server Installer](https://github.com/home-server-project/home-server-instina)]
+- [Home Server Installer](https://github.com/home-server-project/home-server-installer)
 
 </details>
 
