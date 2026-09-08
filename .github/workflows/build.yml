@@ -5,6 +5,8 @@ on:
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - 'THIRD_PARTY_NOTICES.md'
   schedule:
     - cron: '45 3 * * 6'  # Saturday at 3:45am UTC 
   push:
@@ -12,6 +14,7 @@ on:
       - main
     paths-ignore:
       - '**/README.md'
+      - 'THIRD_PARTY_NOTICES.md'
   workflow_dispatch:
 
 env:
