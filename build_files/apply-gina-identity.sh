@@ -11,13 +11,14 @@ if [[ ! -f "${OS_RELEASE}" ]]; then
     exit 1
 fi
 
-# Preserve the upstream Fedora/uCore identity fields that tooling expects.
-# Gina changes presentation and adds namespaced provenance fields only.
+# Preserve the upstream Fedora/uCore compatibility fields that tooling expects.
+# Gina changes the human-facing product identity and adds namespaced provenance.
 # shellcheck disable=SC1090
 source "${OS_RELEASE}"
 
 BASE_ID="${ID:-}"
 BASE_VARIANT_ID="${VARIANT_ID:-}"
+BASE_VARIANT="${VARIANT:-}"
 BASE_PRETTY_NAME="${PRETTY_NAME:-}"
 BASE_VERSION_ID="${VERSION_ID:-}"
 
@@ -48,17 +49,21 @@ case "${UCORE_IMAGE}" in
         ;;
 esac
 
-if [[ -n "${BASE_VERSION_ID}" ]]; then
-    GINA_PRETTY_NAME="${GINA_NAME} (${GINA_UPSTREAM} / Fedora CoreOS ${BASE_VERSION_ID})"
-else
-    GINA_PRETTY_NAME="${GINA_NAME} (${GINA_UPSTREAM} / Fedora CoreOS)"
-fi
+GINA_PRETTY_NAME="${GINA_NAME} (${GINA_UPSTREAM})"
 
 TMP="$(mktemp)"
 trap 'rm -f "${TMP}"' EXIT
 
-awk -v pretty="${GINA_PRETTY_NAME}" '
-    BEGIN { pretty_written = 0 }
+awk -v name="${GINA_NAME}" -v pretty="${GINA_PRETTY_NAME}" '
+    BEGIN {
+        name_written = 0
+        pretty_written = 0
+    }
+    /^NAME=/ {
+        print "NAME=\"" name "\""
+        name_written = 1
+        next
+    }
     /^PRETTY_NAME=/ {
         print "PRETTY_NAME=\"" pretty "\""
         pretty_written = 1
@@ -67,6 +72,9 @@ awk -v pretty="${GINA_PRETTY_NAME}" '
     /^HOME_SERVER_GINA_/ { next }
     { print }
     END {
+        if (!name_written) {
+            print "NAME=\"" name "\""
+        }
         if (!pretty_written) {
             print "PRETTY_NAME=\"" pretty "\""
         }
@@ -79,6 +87,10 @@ HOME_SERVER_GINA_VARIANT="${GINA_VARIANT}"
 HOME_SERVER_GINA_CHANNEL="lts"
 HOME_SERVER_GINA_UPSTREAM="${GINA_UPSTREAM}"
 HOME_SERVER_GINA_UPSTREAM_IMAGE="${UCORE_IMAGE}"
+HOME_SERVER_GINA_BASE_ID="${BASE_ID}"
+HOME_SERVER_GINA_BASE_VARIANT_ID="${BASE_VARIANT_ID}"
+HOME_SERVER_GINA_BASE_VARIANT="${BASE_VARIANT}"
+HOME_SERVER_GINA_BASE_VERSION_ID="${BASE_VERSION_ID}"
 HOME_SERVER_GINA_BASE_PRETTY_NAME="${BASE_PRETTY_NAME}"
 HOME_SERVER_GINA_REPOSITORY="https://github.com/home-server-project/home-server-gina"
 EOF
@@ -86,10 +98,11 @@ EOF
 install -m0644 "${TMP}" "${OS_RELEASE}"
 
 # Validate the final identity without changing the upstream compatibility fields.
-unset ID VARIANT_ID PRETTY_NAME HOME_SERVER_GINA_NAME HOME_SERVER_GINA_VARIANT HOME_SERVER_GINA_CHANNEL HOME_SERVER_GINA_UPSTREAM HOME_SERVER_GINA_UPSTREAM_IMAGE HOME_SERVER_GINA_BASE_PRETTY_NAME HOME_SERVER_GINA_REPOSITORY
+unset NAME ID VARIANT_ID PRETTY_NAME HOME_SERVER_GINA_NAME HOME_SERVER_GINA_VARIANT HOME_SERVER_GINA_CHANNEL HOME_SERVER_GINA_UPSTREAM HOME_SERVER_GINA_UPSTREAM_IMAGE HOME_SERVER_GINA_BASE_ID HOME_SERVER_GINA_BASE_VARIANT_ID HOME_SERVER_GINA_BASE_VARIANT HOME_SERVER_GINA_BASE_VERSION_ID HOME_SERVER_GINA_BASE_PRETTY_NAME HOME_SERVER_GINA_REPOSITORY
 # shellcheck disable=SC1090
 source "${OS_RELEASE}"
 
+[[ "${NAME:-}" == "${GINA_NAME}" ]]
 [[ "${ID:-}" == "${BASE_ID}" ]]
 [[ "${VARIANT_ID:-}" == "${BASE_VARIANT_ID}" ]]
 [[ "${PRETTY_NAME:-}" == "${GINA_PRETTY_NAME}" ]]
@@ -97,6 +110,8 @@ source "${OS_RELEASE}"
 [[ "${HOME_SERVER_GINA_VARIANT:-}" == "${GINA_VARIANT}" ]]
 [[ "${HOME_SERVER_GINA_CHANNEL:-}" == "lts" ]]
 [[ "${HOME_SERVER_GINA_UPSTREAM_IMAGE:-}" == "${UCORE_IMAGE}" ]]
+[[ "${HOME_SERVER_GINA_BASE_ID:-}" == "${BASE_ID}" ]]
+[[ "${HOME_SERVER_GINA_BASE_VARIANT_ID:-}" == "${BASE_VARIANT_ID}" ]]
 [[ "${HOME_SERVER_GINA_REPOSITORY:-}" == "https://github.com/home-server-project/home-server-gina" ]]
 
 if grep -q 'Home Server uCore' "${OS_RELEASE}"; then
