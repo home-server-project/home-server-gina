@@ -36,7 +36,7 @@ Requires:       python3-websockify
 VirtUI Manager is a terminal-based interface for managing QEMU/KVM
 virtual machines through libvirt.
 
-This package is built specifically for the Home Server uCore HCI image.
+This package is built specifically for the Home Server Gina HCI image.
 Its Python application and private Textual dependency are isolated under
 /usr/libexec/virtui-manager.
 
@@ -93,5 +93,5 @@ ln -s vmc %{buildroot}%{_bindir}/virtui-manager-cmd
 
 
 %changelog
-* Sun Aug 30 2026 Home Server uCore <noreply@localhost> - 3.3.1-1
-- Initial Home Server uCore HCI package
+* Sun Aug 30 2026 Home Server Project <noreply@localhost> - 3.3.1-1
+- Initial Home Server Gina HCI package
