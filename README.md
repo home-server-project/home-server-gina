@@ -11,15 +11,15 @@
 >
 > The kernel, Fedora CoreOS base, bootc/rpm-ostree stack, storage stack, virtualization stack, container stack, drivers and core uCore functionality remain upstream.
 
-Home Server Gina is built on [Fedora CoreOS](https://fedoraproject.org/coreos/) through [Universal Blue uCore](https://github.com/ublue-os/ucore) LTS, with a deliberately small home-server administration and UPS tooling layer added on top.
+Home Server Gina is built on [Universal Blue uCore](https://github.com/ublue-os/ucore) LTS, with a deliberately small home-server administration and UPS tooling layer added on top.
 
 ## Upstream foundation
 
-We chose Fedora CoreOS and Universal Blue uCore deliberately.
+We chose Universal Blue uCore deliberately.
 
-Fedora CoreOS provides the atomic, image-based operating-system foundation and modern Fedora userspace. Universal Blue does excellent work turning that foundation into practical uCore server and HCI images, including the LTS image line used by Gina.
+Universal Blue does excellent work building practical uCore server and HCI images on top of [Fedora CoreOS](https://fedoraproject.org/coreos/), including the LTS image line used directly by Gina.
 
-Home Server Project stays intentionally close to that upstream work. Gina adds only a small set of host-side administration, diagnostics, UPS and convenience tools rather than trying to become a separate all-in-one server distribution.
+Fedora CoreOS remains the atomic, image-based operating-system foundation underneath uCore. Home Server Project stays intentionally close to that upstream work and adds only a small set of host-side administration, diagnostics, UPS and convenience tools rather than trying to become a separate all-in-one server distribution.
 
 ```text
 Fedora CoreOS
@@ -228,7 +228,7 @@ ARM64 is not currently published by Gina.
 - [Home Server Rose](https://github.com/home-server-project/home-server-rose)
 - [Home Server Project](https://github.com/home-server-project)
 - [Home Server uCore Builder](https://github.com/home-server-project/home-server-ucore-builder)
-- [Home Server Installer](https://github.com/home-server-project/home-server-installer)
+- [Home Server Installer](https://github.com/home-server-project/home-server-instina)]
 
 </details>
 
@@ -236,4 +236,4 @@ See [`UPSTREAM.md`](UPSTREAM.md) for upstream attribution and relationship detai
 
 ## License
 
-Apache-2.0. Third-party software included in the images retains its own upstream license.
+Apache-2.0. Third-party software included in the images retains its own upstream license. See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for direct third-party additions and notices.
