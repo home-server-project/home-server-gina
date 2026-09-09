@@ -10,23 +10,31 @@ https://github.com/ublue-os/ucore
 
 Universal Blue uCore is itself built on Fedora CoreOS. Home Server Project does not replace or relicense the upstream operating-system content provided by uCore, Fedora CoreOS, Fedora packages, or their dependencies.
 
+## Home Server Packages
+
+UPSide, Superfile and VirtUI Manager are consumed as verified RPM artifacts from the Home Server Packages repository:
+
+https://github.com/home-server-project/home-server-packages
+
+That repository owns their upstream version tracking, exact source provenance, package build, license retention and Fedora/Enterprise Linux validation.
+
 ## UPSide
 
 https://github.com/deviationist/cockpit-upside
 
-UPSide is built from a pinned upstream release and exact upstream commit in an isolated builder stage. Node.js, npm, Git, and other build dependencies do not remain in the final Gina image.
+UPSide retains its upstream LGPL-2.1-or-later license. Gina installs the verified `cockpit-upside` RPM from Home Server Packages rather than compiling UPSide locally.
 
 ## Superfile
 
 https://github.com/yorukot/superfile
 
-Superfile is built from a pinned upstream release and exact upstream commit in an isolated builder stage. The upstream license is copied into the final image with the installed `spf` binary.
+Superfile retains its upstream MIT license. Gina installs the verified `superfile` RPM from Home Server Packages rather than compiling Superfile locally.
 
 ## VirtUI Manager
 
 https://github.com/aginies/virtui-manager
 
-Home Server Gina HCI packages VirtUI Manager from a pinned upstream release and exact upstream commit. Its upstream license is copied into the image, and its private Python/Textual dependency tree is kept separate from Fedora system Python packages.
+VirtUI Manager retains its upstream GPL-3.0-or-later license. Gina HCI installs the verified `virtui-manager` RPM from Home Server Packages. Regular Gina intentionally does not include VirtUI Manager.
 
 ## Fedora packages and other upstream software
 

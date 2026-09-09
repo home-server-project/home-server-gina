@@ -56,11 +56,12 @@ The repository builds two image variants in parallel.
 
 ### Release channels
 
-| Channel | Moving tag | Source branch | Scheduled rebuild |
+| Channel | Moving tag | Source branch | Build trigger |
 |---|---|---|---|
-| LTS | `:lts` | `main` | Weekly on Saturday (UTC) |
+| LTS | `:lts` | `main` | Weekly on Saturday (UTC), pushes to main, or manual run |
+| Testing | `:testing` | `testing` | Manual only |
 
-Normal repository changes and manual workflow runs can also build the images.
+Testing is intentionally manual-only. Pushes to `testing` do not start image builds; the testing workflow is run only when a test image is actually needed.
 
 ## What is included
 
@@ -78,7 +79,7 @@ Gina deliberately keeps its custom layer small, so the individual tools remain u
 | fastfetch | Quick system information |
 | VirtUI Manager | Terminal libvirt/QEMU virtual machine manager — Gina HCI only |
 
-The Home Server Project software layer is declared in [`build_files/software.env`](build_files/software.env). Fedora packages follow the Fedora/uCore package sources. External projects such as UPSide, Superfile and VirtUI Manager are pinned to a release version and exact upstream commit, with Renovate monitoring those versions for updates.
+The Fedora software added directly by Gina is declared in [`build_files/software.env`](build_files/software.env). Fedora packages follow the Fedora/uCore package sources. UPSide, Superfile and VirtUI Manager are consumed as verified RPM artifacts from [Home Server Packages](https://github.com/home-server-project/home-server-packages); their source versions, package builds and upstream update automation are maintained there instead of inside Gina.
 
 Everything else stays as close as possible to upstream uCore.
 
@@ -146,9 +147,9 @@ Then reboot.
 
 ## Updates
 
-The scheduled GitHub Actions workflow rebuilds Gina weekly from the current upstream uCore LTS images. Repository changes and manual workflow runs can also build the images.
+The scheduled GitHub Actions workflow rebuilds Gina weekly from the current upstream uCore LTS images. Repository changes and manual workflow runs can also build the stable images. The testing workflow is manual-only.
 
-Fedora/uCore system content follows the upstream base images. Home Server Project additions declared in `build_files/software.env` are maintained separately; external project versions are tracked by Renovate.
+Fedora/uCore system content follows the upstream base images. UPSide, Superfile and VirtUI Manager follow the verified `:stable` artifacts published by Home Server Packages. At build time Gina resolves those moving package channels to exact OCI digests before composing the image.
 
 The build then rechunks, publishes and signs the resulting images.
 
@@ -163,6 +164,8 @@ lts-YYYYMMDD-<git-sha>
 ```
 
 A GitHub Release is created only after both the regular and HCI images are available with matching release tags.
+
+Testing builds use the separate moving `:testing` tag plus a matching immutable testing tag and do not create GitHub Releases.
 
 ## Issue policy
 
@@ -222,6 +225,7 @@ ARM64 is not currently published by Gina.
 - [Fedora CoreOS](https://fedoraproject.org/coreos/)
 - [Universal Blue uCore](https://github.com/ublue-os/ucore)
 - [Universal Blue image-template](https://github.com/ublue-os/image-template)
+- [Home Server Packages](https://github.com/home-server-project/home-server-packages)
 - [Home Server Rose](https://github.com/home-server-project/home-server-rose)
 - [Home Server Project](https://github.com/home-server-project)
 - [Home Server Gina Builder](https://github.com/home-server-project/home-server-gina-builder)

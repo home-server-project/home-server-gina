@@ -102,6 +102,16 @@ build $target_image=image_name $tag=default_tag:
     BUILD_ARGS=()
     LABELS=()
 
+    resolve_package_ref() {
+        local image="$1"
+        local digest
+
+        podman pull "${image}" >/dev/null
+        digest="$(podman image inspect "${image}" | jq -r '.[0].Digest')"
+        [[ "${digest}" =~ ^sha256:[0-9a-f]{64}$ ]]
+        printf '%s@%s' "${image%:*}" "${digest}"
+    }
+
     # GitHub Actions sets UCORE_IMAGE for each matrix entry.
     # If it is unset, Containerfile uses its normal uCore LTS fallback.
     if [[ -n "${UCORE_IMAGE:-}" ]]; then
@@ -110,6 +120,26 @@ build $target_image=image_name $tag=default_tag:
             "UCORE_IMAGE=${UCORE_IMAGE}"
         )
     fi
+
+    # Resolve the moving Home Server Packages stable channels to exact
+    # package artifact digests for this image build.
+    UPSIDE_PACKAGE_IMAGE="${UPSIDE_PACKAGE_IMAGE:-$(resolve_package_ref ghcr.io/home-server-project/cockpit-upside:stable)}"
+    SUPERFILE_PACKAGE_IMAGE="${SUPERFILE_PACKAGE_IMAGE:-$(resolve_package_ref ghcr.io/home-server-project/superfile:stable)}"
+    VIRTUI_MANAGER_PACKAGE_IMAGE="${VIRTUI_MANAGER_PACKAGE_IMAGE:-$(resolve_package_ref ghcr.io/home-server-project/virtui-manager:stable)}"
+
+    BUILD_ARGS+=(
+        "--build-arg"
+        "UPSIDE_PACKAGE_IMAGE=${UPSIDE_PACKAGE_IMAGE}"
+        "--build-arg"
+        "SUPERFILE_PACKAGE_IMAGE=${SUPERFILE_PACKAGE_IMAGE}"
+        "--build-arg"
+        "VIRTUI_MANAGER_PACKAGE_IMAGE=${VIRTUI_MANAGER_PACKAGE_IMAGE}"
+    )
+
+    echo "Home Server Packages snapshot:"
+    echo "  UPSide:         ${UPSIDE_PACKAGE_IMAGE}"
+    echo "  Superfile:      ${SUPERFILE_PACKAGE_IMAGE}"
+    echo "  VirtUI Manager: ${VIRTUI_MANAGER_PACKAGE_IMAGE}"
 
     # Pass the exact final GHCR repository into the image so its
     # container-signature policy trusts the image it actually belongs to.
@@ -498,27 +528,3 @@ spawn-vm rebuild="0" type="qcow2" ram="6G":
       --network-user-mode \
       --vsock=false --pass-ssh-key=false \
       -i ./output/**/*.{{ type }}
-
-# Runs shell check on all Bash scripts
-lint:
-    #!/usr/bin/env bash
-    set -eoux pipefail
-    # Check if shellcheck is installed
-    if ! command -v shellcheck &> /dev/null; then
-        echo "shellcheck could not be found. Please install it."
-        exit 1
-    fi
-    # Run shellcheck on all Bash scripts
-    find . -iname "*.sh" -type f -exec shellcheck "{}" ';'
-
-# Runs shfmt on all Bash scripts
-format:
-    #!/usr/bin/env bash
-    set -eoux pipefail
-    # Check if shfmt is installed
-    if ! command -v shfmt &> /dev/null; then
-        echo "shfmt could not be found. Please install it."
-        exit 1
-    fi
-    # Run shfmt on all Bash scripts
-    find . -iname "*.sh" -type f -exec shfmt --write "{}" ';'

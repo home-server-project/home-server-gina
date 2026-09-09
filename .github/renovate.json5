@@ -7,82 +7,6 @@
 
   "rebaseWhen": "never",
 
-  "customManagers": [
-    {
-      "customType": "regex",
-
-      "managerFilePatterns": [
-        "/^build_files\\/software\\.env$/",
-      ],
-
-      "matchStrings": [
-        "UPSIDE_VERSION=(?<currentValue>\\S+)\\s+UPSIDE_COMMIT=(?<currentDigest>[a-f0-9]{40})",
-      ],
-
-      "packageNameTemplate": "deviationist/cockpit-upside",
-      "datasourceTemplate": "github-tags",
-      "versioningTemplate": "semver",
-
-      "autoReplaceStringTemplate": "UPSIDE_VERSION={{{newValue}}}\\nUPSIDE_COMMIT={{{newDigest}}}",
-    },
-
-    {
-      "customType": "regex",
-
-      "managerFilePatterns": [
-        "/^build_files\\/software\\.env$/",
-      ],
-
-      "matchStrings": [
-        "SUPERFILE_VERSION=(?<currentValue>\\S+)\\s+SUPERFILE_COMMIT=(?<currentDigest>[a-f0-9]{40})",
-      ],
-
-      "packageNameTemplate": "yorukot/superfile",
-      "datasourceTemplate": "github-tags",
-      "versioningTemplate": "semver",
-
-      "extractVersionTemplate": "^v?(?<version>.*)$",
-
-      "autoReplaceStringTemplate": "SUPERFILE_VERSION={{{newValue}}}\\nSUPERFILE_COMMIT={{{newDigest}}}",
-    },
-
-    {
-      "customType": "regex",
-
-      "managerFilePatterns": [
-        "/^build_files\\/software\\.env$/",
-      ],
-
-      "matchStrings": [
-        "VIRTUI_MANAGER_VERSION=(?<currentValue>\\S+)\\s+VIRTUI_MANAGER_COMMIT=(?<currentDigest>[a-f0-9]{40})",
-      ],
-
-      "packageNameTemplate": "aginies/virtui-manager",
-      "datasourceTemplate": "github-tags",
-      "versioningTemplate": "semver",
-
-      "extractVersionTemplate": "^v?(?<version>.*)$",
-
-      "autoReplaceStringTemplate": "VIRTUI_MANAGER_VERSION={{{newValue}}}\\nVIRTUI_MANAGER_COMMIT={{{newDigest}}}",
-    },
-
-    {
-      "customType": "regex",
-
-      "managerFilePatterns": [
-        "/^build_files\\/software\\.env$/",
-      ],
-
-      "matchStrings": [
-        "VIRTUI_TEXTUAL_VERSION=(?<currentValue>\\S+)",
-      ],
-
-      "packageNameTemplate": "textual",
-      "datasourceTemplate": "pypi",
-      "versioningTemplate": "pep440",
-    },
-  ],
-
   "packageRules": [
     {
       "automerge": true,
@@ -105,17 +29,6 @@
       "matchFileNames": [
         ".github/workflows/**.yaml",
         ".github/workflows/**.yml",
-      ],
-    },
-
-    {
-      "automerge": false,
-
-      "matchPackageNames": [
-        "deviationist/cockpit-upside",
-        "yorukot/superfile",
-        "aginies/virtui-manager",
-        "textual",
       ],
     },
   ],

@@ -53,6 +53,19 @@ systemctl disable netbird.service 2>/dev/null || true
 
 
 # ============================================================
+# Verified Home Server Packages RPMs
+# ============================================================
+
+UPSIDE_RPM="$(find /upside-rpm -maxdepth 1 -type f -name 'cockpit-upside-*.noarch.rpm' -print -quit)"
+SUPERFILE_RPM="$(find /superfile-rpm -maxdepth 1 -type f -name 'superfile-*.x86_64.rpm' -print -quit)"
+
+test -n "${UPSIDE_RPM}"
+test -n "${SUPERFILE_RPM}"
+
+dnf5 install -y "${UPSIDE_RPM}" "${SUPERFILE_RPM}"
+
+
+# ============================================================
 # VirtUI Manager - Gina HCI only
 # ============================================================
 #
@@ -60,7 +73,14 @@ systemctl disable netbird.service 2>/dev/null || true
 # Gina HCI image. The regular Gina image intentionally does not receive it.
 
 if [[ "${UCORE_IMAGE}" == *"/ucore-hci:"* ]]; then
-    dnf5 install -y /virtui-manager-rpm/virtui-manager-*.noarch.rpm
+    VIRTUI_RPM="$(find /virtui-manager-rpm -maxdepth 1 -type f -name 'virtui-manager-*.noarch.rpm' -print -quit)"
+    test -n "${VIRTUI_RPM}"
+    dnf5 install -y "${VIRTUI_RPM}"
+else
+    if rpm -q virtui-manager >/dev/null 2>&1 || command -v virtui-manager >/dev/null 2>&1; then
+        echo 'ERROR: VirtUI Manager must not be present in regular Gina.' >&2
+        exit 1
+    fi
 fi
 
 
@@ -87,6 +107,12 @@ command -v micro
 command -v netbird
 command -v spf
 
+rpm -q cockpit-upside
+rpm -q superfile
+
+test -f /usr/share/cockpit/upside/manifest.json
+test -f /usr/share/licenses/cockpit-upside/LICENSE
+test -f /usr/share/licenses/superfile/LICENSE
 
 if [[ "${UCORE_IMAGE}" == *"/ucore-hci:"* ]]; then
     command -v virtui-manager
@@ -98,14 +124,10 @@ if [[ "${UCORE_IMAGE}" == *"/ucore-hci:"* ]]; then
     rpm -q python3-websockify
 
     test -d /usr/share/novnc
-
-    PYTHONPATH=/usr/libexec/virtui-manager/python \
-        python3 -c 'import textual, libvirt, yaml, requests, netifaces, gi, packaging, markdown_it, vmanager.wrapper'
+else
+    ! rpm -q virtui-manager >/dev/null 2>&1
+    ! command -v virtui-manager >/dev/null 2>&1
 fi
-
-
-test -f /usr/share/cockpit/upside/manifest.json
-test -f /usr/share/licenses/superfile/LICENSE
 
 # Confirm the final image presents itself as Gina while preserving uCore identity.
 # shellcheck disable=SC1091
