@@ -82,18 +82,9 @@ sudoif command *args:
 #   $target_image - The tag you want to apply to the image (default: $image_name).
 #   $tag - The tag for the image (default: $default_tag).
 #
-# The script constructs the version string using the tag and the current date.
-# If the git working directory is clean, it also includes the short SHA of the current HEAD.
-#
 # just build $target_image $tag
-#
-# Example usage:
-#   just build myimage mytag
-#
-# This will build an image 'myimage:mytag'
-#
 
-# Build the image using the specified parameters
+# Build the selected Gina image using exact Home Server Packages artifacts.
 build $target_image=image_name $tag=default_tag:
     #!/usr/bin/env bash
 
@@ -112,34 +103,45 @@ build $target_image=image_name $tag=default_tag:
         printf '%s@%s' "${image%:*}" "${digest}"
     }
 
-    # GitHub Actions sets UCORE_IMAGE for each matrix entry.
-    # If it is unset, Containerfile uses its normal uCore LTS fallback.
-    if [[ -n "${UCORE_IMAGE:-}" ]]; then
-        BUILD_ARGS+=(
-            "--build-arg"
-            "UCORE_IMAGE=${UCORE_IMAGE}"
-        )
-    fi
+    case "${target_image}" in
+        home-server-gina-hci)
+            BUILD_TARGET="home-server-gina-hci"
+            UCORE_IMAGE="${UCORE_IMAGE:-ghcr.io/ublue-os/ucore-hci:lts}"
+            ;;
+        home-server-gina)
+            BUILD_TARGET="home-server-gina"
+            UCORE_IMAGE="${UCORE_IMAGE:-ghcr.io/ublue-os/ucore:lts}"
+            ;;
+        *)
+            echo "Unsupported Gina image target: ${target_image}" >&2
+            exit 1
+            ;;
+    esac
 
-    # Resolve the moving Home Server Packages stable channels to exact
-    # package artifact digests for this image build.
     UPSIDE_PACKAGE_IMAGE="${UPSIDE_PACKAGE_IMAGE:-$(resolve_package_ref ghcr.io/home-server-project/cockpit-upside:stable)}"
     SUPERFILE_PACKAGE_IMAGE="${SUPERFILE_PACKAGE_IMAGE:-$(resolve_package_ref ghcr.io/home-server-project/superfile:stable)}"
-    VIRTUI_MANAGER_PACKAGE_IMAGE="${VIRTUI_MANAGER_PACKAGE_IMAGE:-$(resolve_package_ref ghcr.io/home-server-project/virtui-manager:stable)}"
 
     BUILD_ARGS+=(
+        "--build-arg"
+        "UCORE_IMAGE=${UCORE_IMAGE}"
         "--build-arg"
         "UPSIDE_PACKAGE_IMAGE=${UPSIDE_PACKAGE_IMAGE}"
         "--build-arg"
         "SUPERFILE_PACKAGE_IMAGE=${SUPERFILE_PACKAGE_IMAGE}"
-        "--build-arg"
-        "VIRTUI_MANAGER_PACKAGE_IMAGE=${VIRTUI_MANAGER_PACKAGE_IMAGE}"
     )
 
     echo "Home Server Packages snapshot:"
-    echo "  UPSide:         ${UPSIDE_PACKAGE_IMAGE}"
-    echo "  Superfile:      ${SUPERFILE_PACKAGE_IMAGE}"
-    echo "  VirtUI Manager: ${VIRTUI_MANAGER_PACKAGE_IMAGE}"
+    echo "  UPSide:    ${UPSIDE_PACKAGE_IMAGE}"
+    echo "  Superfile: ${SUPERFILE_PACKAGE_IMAGE}"
+
+    if [[ "${BUILD_TARGET}" == "home-server-gina-hci" ]]; then
+        VIRTUI_MANAGER_PACKAGE_IMAGE="${VIRTUI_MANAGER_PACKAGE_IMAGE:-$(resolve_package_ref ghcr.io/home-server-project/virtui-manager:stable)}"
+        BUILD_ARGS+=(
+            "--build-arg"
+            "VIRTUI_MANAGER_PACKAGE_IMAGE=${VIRTUI_MANAGER_PACKAGE_IMAGE}"
+        )
+        echo "  VirtUI Manager: ${VIRTUI_MANAGER_PACKAGE_IMAGE}"
+    fi
 
     # Pass the exact final GHCR repository into the image so its
     # container-signature policy trusts the image it actually belongs to.
@@ -213,6 +215,7 @@ build $target_image=image_name $tag=default_tag:
         "${BUILD_ARGS[@]}"
         "${LABELS[@]}"
         --pull=newer
+        --target "${BUILD_TARGET}"
         --tag "${target_image}:${tag}"
         --file Containerfile
     )

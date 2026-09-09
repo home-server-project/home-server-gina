@@ -53,7 +53,7 @@ systemctl disable netbird.service 2>/dev/null || true
 
 
 # ============================================================
-# Verified Home Server Packages RPMs
+# Verified Home Server Packages RPMs shared by both Gina images
 # ============================================================
 
 UPSIDE_RPM="$(find /upside-rpm -maxdepth 1 -type f -name 'cockpit-upside-*.noarch.rpm' -print -quit)"
@@ -65,23 +65,9 @@ test -n "${SUPERFILE_RPM}"
 dnf5 install -y "${UPSIDE_RPM}" "${SUPERFILE_RPM}"
 
 
-# ============================================================
-# VirtUI Manager - Gina HCI only
-# ============================================================
-#
-# VirtUI Manager belongs only on the virtualization-focused
-# Gina HCI image. The regular Gina image intentionally does not receive it.
-
-if [[ "${UCORE_IMAGE}" == *"/ucore-hci:"* ]]; then
-    VIRTUI_RPM="$(find /virtui-manager-rpm -maxdepth 1 -type f -name 'virtui-manager-*.noarch.rpm' -print -quit)"
-    test -n "${VIRTUI_RPM}"
-    dnf5 install -y "${VIRTUI_RPM}"
-else
-    if rpm -q virtui-manager >/dev/null 2>&1 || command -v virtui-manager >/dev/null 2>&1; then
-        echo 'ERROR: VirtUI Manager must not be present in regular Gina.' >&2
-        exit 1
-    fi
-fi
+# The common Gina layer must stay independent of VirtUI Manager.
+! rpm -q virtui-manager >/dev/null 2>&1
+! command -v virtui-manager >/dev/null 2>&1
 
 
 # ============================================================
@@ -113,21 +99,6 @@ rpm -q superfile
 test -f /usr/share/cockpit/upside/manifest.json
 test -f /usr/share/licenses/cockpit-upside/LICENSE
 test -f /usr/share/licenses/superfile/LICENSE
-
-if [[ "${UCORE_IMAGE}" == *"/ucore-hci:"* ]]; then
-    command -v virtui-manager
-    command -v vmc
-    command -v websockify
-
-    rpm -q virtui-manager
-    rpm -q novnc
-    rpm -q python3-websockify
-
-    test -d /usr/share/novnc
-else
-    ! rpm -q virtui-manager >/dev/null 2>&1
-    ! command -v virtui-manager >/dev/null 2>&1
-fi
 
 # Confirm the final image presents itself as Gina while preserving uCore identity.
 # shellcheck disable=SC1091
