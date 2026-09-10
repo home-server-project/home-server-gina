@@ -58,7 +58,7 @@ The repository builds two image variants in parallel.
 
 | Channel | Moving tag | Source branch | Build trigger |
 |---|---|---|---|
-| LTS | `:lts` | `main` | Weekly on Saturday (UTC), pushes to main, or manual run |
+| LTS | `:lts` | `main` | Weekly on Saturday (UTC), relevant pushes to main, or manual run |
 | Testing | `:testing` | `testing` | Manual only |
 
 Testing is intentionally manual-only. Pushes to `testing` do not start image builds; the testing workflow is run only when a test image is actually needed.
@@ -115,39 +115,19 @@ Kernel regressions and kernel issues remain upstream issues.
 
 ### Fresh install
 
-For a fresh installation, use the [Home Server Gina Builder](https://github.com/home-server-project/home-server-gina-builder) to create a personalized [Home Server Installer](https://github.com/home-server-project/home-server-installer) ISO with your SSH public key.
+For a fresh installation, there are two installation-media options:
 
-The current Home Server Installer supports **11 signed LTS installation targets across four families**.
+- **Generic Installer ISO** — open the [latest Home Server Installer release](https://github.com/home-server-project/home-server-installer/releases/latest), download the published ISO and configure your password and/or SSH access during installation.
+- **Personalized Builder ISO** — use [Home Server Gina Builder](https://github.com/home-server-project/home-server-gina-builder) to create fresh installation media with your SSH public key already embedded.
 
-<details>
-<summary><strong>Show all 11 installation targets</strong></summary>
+Both use the current published Home Server Installer release. In the Installer, choose one of the Gina targets:
 
-### Home Server Gina LTS
 - **Home Server Gina LTS** — `ghcr.io/home-server-project/home-server-gina:lts`
 - **Home Server Gina HCI LTS** — `ghcr.io/home-server-project/home-server-gina-hci:lts`
 
-### Universal Blue uCore LTS
-- **uCore Minimal LTS** — `ghcr.io/ublue-os/ucore-minimal:lts`
-- **uCore LTS** — `ghcr.io/ublue-os/ucore:lts`
-- **uCore HCI LTS** — `ghcr.io/ublue-os/ucore-hci:lts`
+The Installer also supports selected upstream uCore LTS targets. See the [Home Server Installer README](https://github.com/home-server-project/home-server-installer) for the complete current target list, installation behavior, storage layout, SSH access and testing notes.
 
-### Universal Blue uCore LTS / NVIDIA Open
-- **uCore Minimal LTS NVIDIA Open** — `ghcr.io/ublue-os/ucore-minimal:lts-nvidia`
-- **uCore LTS NVIDIA Open** — `ghcr.io/ublue-os/ucore:lts-nvidia`
-- **uCore HCI LTS NVIDIA Open** — `ghcr.io/ublue-os/ucore-hci:lts-nvidia`
-
-### Universal Blue uCore LTS / NVIDIA LTS
-- **uCore Minimal LTS NVIDIA LTS** — `ghcr.io/ublue-os/ucore-minimal:lts-nvidia-lts`
-- **uCore LTS NVIDIA LTS** — `ghcr.io/ublue-os/ucore:lts-nvidia-lts`
-- **uCore HCI LTS NVIDIA LTS** — `ghcr.io/ublue-os/ucore-hci:lts-nvidia-lts`
-
-</details>
-
-All installer choices use LTS images. After installation, users can switch to `stable` or `testing` with `bootc`.
-
-The installer downloads, verifies and installs the selected image directly as the first bootable deployment. An internet connection is required during the normal installation path.
-
-Use the Builder README for ISO creation instructions and the Installer README for installation behavior, storage layout, SSH access and current testing notes.
+The Installer downloads, verifies and installs the selected image directly as the first bootable deployment. An internet connection is required during the normal installation path.
 
 ### Existing compatible bootc/uCore installation
 
@@ -167,7 +147,7 @@ Then reboot.
 
 ## Updates
 
-The scheduled GitHub Actions workflow rebuilds Gina weekly from the current upstream uCore LTS images. Repository changes and manual workflow runs can also build the stable images. The testing workflow is manual-only.
+The scheduled GitHub Actions workflow rebuilds Gina weekly from the current upstream uCore LTS images. Relevant repository changes and manual workflow runs can also build the stable images. The testing workflow is manual-only.
 
 Fedora/uCore system content follows the upstream base images. UPSide, Superfile and VirtUI Manager follow the verified `:stable` artifacts published by Home Server Packages. At build time Gina resolves those moving package channels to exact OCI digests before composing the image.
 
@@ -184,6 +164,8 @@ lts-YYYYMMDD-<git-sha>
 ```
 
 A GitHub Release is created only after both the regular and HCI images are available with matching release tags.
+
+These Gina GitHub Releases describe the signed Gina and Gina HCI operating-system image builds. Bootable installation media is published separately by [Home Server Installer](https://github.com/home-server-project/home-server-installer/releases/latest).
 
 Testing builds use the separate moving `:testing` tag plus a matching immutable testing tag and do not create GitHub Releases.
 
