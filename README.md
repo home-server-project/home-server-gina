@@ -78,8 +78,6 @@ Gina deliberately keeps its custom layer small, so the individual tools remain u
 
 The Fedora software added directly by Gina is declared in [`build_files/software.env`](build_files/software.env). Fedora packages follow the Fedora/uCore package sources. UPSide and VirtUI Manager are consumed as verified RPM artifacts from [Home Server Packages](https://github.com/home-server-project/home-server-packages). Homebrew integration is supplied by [uBlue Brew](https://github.com/ublue-os/brew), resolved to an exact signed digest for each build.
 
-Micro, Superfile, btop and Fastfetch are not baked into Gina. Users who want those or other CLI tools can install them through Homebrew. Gina intentionally keeps its system Fastfetch configuration and logo so a later Brew-installed Fastfetch continues to use Gina branding rather than the upstream Fedora/uCore presentation.
-
 Everything else stays as close as possible to upstream uCore.
 
 Applications such as Jellyfin, Plex, databases, media automation, download stacks, application servers and large monitoring platforms belong in containers rather than being baked into Gina.
