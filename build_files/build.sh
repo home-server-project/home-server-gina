@@ -53,16 +53,22 @@ systemctl disable netbird.service 2>/dev/null || true
 
 
 # ============================================================
-# Verified Home Server Packages RPMs shared by both Gina images
+# Verified Home Server Packages RPM shared by both Gina images
 # ============================================================
 
 UPSIDE_RPM="$(find /upside-rpm -maxdepth 1 -type f -name 'cockpit-upside-*.noarch.rpm' -print -quit)"
-SUPERFILE_RPM="$(find /superfile-rpm -maxdepth 1 -type f -name 'superfile-*.x86_64.rpm' -print -quit)"
 
 test -n "${UPSIDE_RPM}"
-test -n "${SUPERFILE_RPM}"
 
-dnf5 install -y "${UPSIDE_RPM}" "${SUPERFILE_RPM}"
+dnf5 install -y "${UPSIDE_RPM}"
+
+
+# ============================================================
+# Homebrew bootc integration
+# ============================================================
+
+systemctl preset brew-setup.service brew-update.timer
+systemctl disable brew-upgrade.timer 2>/dev/null || true
 
 
 # The common Gina layer must stay independent of VirtUI Manager.
@@ -87,18 +93,32 @@ bash /ctx/apply-gina-identity.sh
 command -v upsc
 command -v nut-scanner
 command -v powertop
-command -v btop
-command -v fastfetch
-command -v micro
 command -v netbird
-command -v spf
+command -v file
+command -v git
+command -v zstd
+command -v gcc
+command -v g++
+command -v make
+command -v ps
 
 rpm -q cockpit-upside
-rpm -q superfile
+rpm -q file git zstd gcc gcc-c++ make procps-ng
 
 test -f /usr/share/cockpit/upside/manifest.json
 test -f /usr/share/licenses/cockpit-upside/LICENSE
-test -f /usr/share/licenses/superfile/LICENSE
+
+test -f /usr/share/homebrew.tar.zst
+test -f /usr/lib/systemd/system/brew-setup.service
+test -f /usr/lib/systemd/system/brew-update.service
+test -f /usr/lib/systemd/system/brew-update.timer
+test -f /usr/lib/systemd/system/brew-upgrade.service
+test -f /usr/lib/systemd/system/brew-upgrade.timer
+test -f /etc/profile.d/brew.sh
+tar --zstd -tf /usr/share/homebrew.tar.zst | grep -Eq '(^|/)home/linuxbrew/.linuxbrew/bin/brew$'
+test "$(systemctl is-enabled brew-setup.service)" = "enabled"
+test "$(systemctl is-enabled brew-update.timer)" = "enabled"
+test "$(systemctl is-enabled brew-upgrade.timer 2>/dev/null || true)" = "disabled"
 
 # Confirm the final image presents itself as Gina while preserving uCore identity.
 # shellcheck disable=SC1091
