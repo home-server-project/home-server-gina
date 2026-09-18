@@ -73,13 +73,12 @@ Gina deliberately keeps its custom layer small, so the individual tools remain u
 | UPSide | Cockpit interface for NUT |
 | PowerTOP | Power diagnostics |
 | NetBird | Alternative mesh-VPN client alongside upstream Tailscale |
-| Micro | Friendly terminal text editor |
-| Superfile | Terminal file manager (`spf`) |
-| btop | System/resource monitoring |
-| fastfetch | Quick system information |
+| Homebrew | Optional CLI software through the verified uBlue Brew bootc integration |
 | VirtUI Manager | Terminal libvirt/QEMU virtual machine manager — Gina HCI only |
 
-The Fedora software added directly by Gina is declared in [`build_files/software.env`](build_files/software.env). Fedora packages follow the Fedora/uCore package sources. UPSide, Superfile and VirtUI Manager are consumed as verified RPM artifacts from [Home Server Packages](https://github.com/home-server-project/home-server-packages); their source versions, package builds and upstream update automation are maintained there instead of inside Gina.
+The Fedora software added directly by Gina is declared in [`build_files/software.env`](build_files/software.env). Fedora packages follow the Fedora/uCore package sources. UPSide and VirtUI Manager are consumed as verified RPM artifacts from [Home Server Packages](https://github.com/home-server-project/home-server-packages). Homebrew integration is supplied by [uBlue Brew](https://github.com/ublue-os/brew), resolved to an exact signed digest for each build.
+
+Micro, Superfile, btop and Fastfetch are not baked into Gina. Users who want those or other CLI tools can install them through Homebrew. Gina intentionally keeps its system Fastfetch configuration and logo so a later Brew-installed Fastfetch continues to use Gina branding rather than the upstream Fedora/uCore presentation.
 
 Everything else stays as close as possible to upstream uCore.
 
@@ -149,7 +148,7 @@ Then reboot.
 
 The scheduled GitHub Actions workflow rebuilds Gina weekly from the current upstream uCore LTS images. Relevant repository changes and manual workflow runs can also build the stable images. The testing workflow is manual-only.
 
-Fedora/uCore system content follows the upstream base images. UPSide, Superfile and VirtUI Manager follow the verified `:stable` artifacts published by Home Server Packages. At build time Gina resolves those moving package channels to exact OCI digests before composing the image.
+Fedora/uCore system content follows the upstream base images. UPSide and VirtUI Manager follow the verified `:stable` artifacts published by Home Server Packages. uBlue Brew follows its current `:latest` image, which Gina resolves to an exact digest and verifies with the uBlue signing key before composition. Homebrew updates its metadata normally through `brew update`; installed formula upgrades remain administrator-controlled.
 
 The build then rechunks, publishes and signs the resulting images.
 
@@ -176,7 +175,7 @@ Open an issue in this repository when the problem is caused by something Home Se
 Examples:
 
 - NUT or another Gina-added package failed to install
-- UPSide, NetBird, Superfile or another added utility is missing or packaged incorrectly
+- UPSide, NetBird, Homebrew integration or another added utility is missing or packaged incorrectly
 - VirtUI Manager integration is broken in Gina HCI
 - the Home Server Project build workflow fails
 - Gina image signing or publication is broken
@@ -197,8 +196,8 @@ Kernel regressions, hardware drivers, Fedora CoreOS problems, bootc/rpm-ostree p
 - [Network UPS Tools](https://github.com/networkupstools/nut/issues)
 - [UPSide](https://github.com/deviationist/cockpit-upside/issues)
 - [NetBird](https://github.com/netbirdio/netbird/issues)
-- [Micro](https://github.com/micro-editor/micro/issues)
-- [Superfile](https://github.com/yorukot/superfile/issues)
+- [uBlue Brew](https://github.com/ublue-os/brew/issues)
+- [Homebrew](https://github.com/Homebrew/brew/issues)
 - [VirtUI Manager](https://github.com/aginies/virtui-manager/issues)
 
 </details>
@@ -227,6 +226,8 @@ ARM64 is not currently published by Gina.
 - [Fedora CoreOS](https://fedoraproject.org/coreos/)
 - [Universal Blue uCore](https://github.com/ublue-os/ucore)
 - [Universal Blue image-template](https://github.com/ublue-os/image-template)
+- [uBlue Brew](https://github.com/ublue-os/brew)
+- [Homebrew](https://brew.sh/)
 - [Home Server Packages](https://github.com/home-server-project/home-server-packages)
 - [Home Server Rose](https://github.com/home-server-project/home-server-rose)
 - [Home Server Project](https://github.com/home-server-project)

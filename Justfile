@@ -84,7 +84,7 @@ sudoif command *args:
 #
 # just build $target_image $tag
 
-# Build the selected Gina image using exact Home Server Packages artifacts.
+# Build the selected Gina image using exact verified external artifacts.
 build $target_image=image_name $tag=default_tag:
     #!/usr/bin/env bash
 
@@ -119,7 +119,13 @@ build $target_image=image_name $tag=default_tag:
     esac
 
     UPSIDE_PACKAGE_IMAGE="${UPSIDE_PACKAGE_IMAGE:-$(resolve_package_ref ghcr.io/home-server-project/cockpit-upside:stable)}"
-    SUPERFILE_PACKAGE_IMAGE="${SUPERFILE_PACKAGE_IMAGE:-$(resolve_package_ref ghcr.io/home-server-project/superfile:stable)}"
+    BREW_IMAGE="${BREW_IMAGE:-$(resolve_package_ref ghcr.io/ublue-os/brew:latest)}"
+
+    command -v cosign >/dev/null
+    cosign verify \
+        --new-bundle-format=false \
+        --key ublue-brew-cosign.pub \
+        "${BREW_IMAGE}" >/dev/null
 
     BUILD_ARGS+=(
         "--build-arg"
@@ -127,12 +133,16 @@ build $target_image=image_name $tag=default_tag:
         "--build-arg"
         "UPSIDE_PACKAGE_IMAGE=${UPSIDE_PACKAGE_IMAGE}"
         "--build-arg"
-        "SUPERFILE_PACKAGE_IMAGE=${SUPERFILE_PACKAGE_IMAGE}"
+        "BREW_IMAGE=${BREW_IMAGE}"
     )
 
-    echo "Home Server Packages snapshot:"
-    echo "  UPSide:    ${UPSIDE_PACKAGE_IMAGE}"
-    echo "  Superfile: ${SUPERFILE_PACKAGE_IMAGE}"
+    echo "Verified external inputs:"
+    echo "  UPSide:     ${UPSIDE_PACKAGE_IMAGE}"
+    echo "  uBlue Brew: ${BREW_IMAGE}"
+
+    if [[ -n "${GITHUB_ENV:-}" ]]; then
+        echo "BREW_IMAGE_RESOLVED=${BREW_IMAGE}" >> "${GITHUB_ENV}"
+    fi
 
     if [[ "${BUILD_TARGET}" == "home-server-gina-hci" ]]; then
         VIRTUI_MANAGER_PACKAGE_IMAGE="${VIRTUI_MANAGER_PACKAGE_IMAGE:-$(resolve_package_ref ghcr.io/home-server-project/virtui-manager:stable)}"
