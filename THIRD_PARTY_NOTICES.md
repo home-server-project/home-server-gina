@@ -12,7 +12,7 @@ Universal Blue uCore is itself built on Fedora CoreOS. Home Server Project does 
 
 ## Home Server Packages
 
-UPSide, Superfile and VirtUI Manager are consumed as verified RPM artifacts from the Home Server Packages repository:
+UPSide and VirtUI Manager are consumed as verified RPM artifacts from the Home Server Packages repository:
 
 https://github.com/home-server-project/home-server-packages
 
@@ -24,11 +24,19 @@ https://github.com/deviationist/cockpit-upside
 
 UPSide retains its upstream LGPL-2.1-or-later license. Gina installs the verified `cockpit-upside` RPM from Home Server Packages rather than compiling UPSide locally.
 
-## Superfile
+## uBlue Brew and Homebrew
 
-https://github.com/yorukot/superfile
+Home Server Gina consumes the uBlue Brew bootc integration from:
 
-Superfile retains its upstream MIT license. Gina installs the verified `superfile` RPM from Home Server Packages rather than compiling Superfile locally.
+https://github.com/ublue-os/brew
+
+Each image build resolves the current uBlue Brew image to an exact digest and verifies it with
+uBlue's signing key before composition. The integration supplies the official Homebrew bootstrap
+payload, systemd units and shell integration used by both Gina variants.
+
+Homebrew itself is maintained upstream at:
+
+https://github.com/Homebrew/brew
 
 ## VirtUI Manager
 
@@ -38,6 +46,6 @@ VirtUI Manager retains its upstream GPL-3.0-or-later license. Gina HCI installs 
 
 ## Fedora packages and other upstream software
 
-Packages installed from Fedora/uCore sources, including Network UPS Tools, PowerTOP, btop, fastfetch, Micro, NetBird, and their dependencies, retain the licenses and notices provided by their respective upstream projects and packages.
+Packages installed from Fedora/uCore sources, including Network UPS Tools, PowerTOP, NetBird, and their dependencies, retain the licenses and notices provided by their respective upstream projects and packages.
 
 See [`UPSTREAM.md`](UPSTREAM.md) for the primary upstream-project relationship and attribution notes.

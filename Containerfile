@@ -3,7 +3,7 @@
 ARG UCORE_IMAGE=ghcr.io/ublue-os/ucore:lts
 ARG IMAGE_REPOSITORY=ghcr.io/home-server-project/home-server-gina
 ARG UPSIDE_PACKAGE_IMAGE=ghcr.io/home-server-project/cockpit-upside:stable
-ARG SUPERFILE_PACKAGE_IMAGE=ghcr.io/home-server-project/superfile:stable
+ARG BREW_IMAGE=ghcr.io/ublue-os/brew:latest
 ARG VIRTUI_MANAGER_PACKAGE_IMAGE=ghcr.io/home-server-project/virtui-manager:stable
 
 
@@ -19,7 +19,7 @@ COPY cosign.pub /cosign.pub
 # ============================================================
 
 FROM ${UPSIDE_PACKAGE_IMAGE} AS upside-package
-FROM ${SUPERFILE_PACKAGE_IMAGE} AS superfile-package
+FROM ${BREW_IMAGE} AS brew-package
 
 
 # ============================================================
@@ -28,12 +28,13 @@ FROM ${SUPERFILE_PACKAGE_IMAGE} AS superfile-package
 
 FROM ${UCORE_IMAGE} AS home-server-gina
 
+COPY --from=brew-package /system_files /
+
 ARG UCORE_IMAGE
 ARG IMAGE_REPOSITORY
 
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=bind,from=upside-package,source=/rpms,target=/upside-rpm \
-    --mount=type=bind,from=superfile-package,source=/rpms,target=/superfile-rpm \
     --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
     --mount=type=tmpfs,dst=/tmp \
