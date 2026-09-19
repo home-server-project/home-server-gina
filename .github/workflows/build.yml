@@ -1,5 +1,5 @@
 ---
-name: Build signed Home Server Gina images
+name: lts
 
 on:
   pull_request:
