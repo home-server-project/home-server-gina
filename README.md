@@ -5,7 +5,7 @@
 # Home Server Gina
 
 [![LTS build](https://github.com/home-server-project/home-server-gina/actions/workflows/build.yml/badge.svg)](https://github.com/home-server-project/home-server-gina/actions/workflows/build.yml) 
-[![Testing build](https://github.com/home-server-project/home-server-gina/actions/workflows/build.yml/badge.svg)](https://github.com/home-server-project/home-server-gina/actions/workflows/build-testing.yml)
+[![Testing build](https://github.com/home-server-project/home-server-gina/actions/workflows/build-testing.yml/badge.svg)](https://github.com/home-server-project/home-server-gina/actions/workflows/build-testing.yml)
 
 > [!IMPORTANT]
 > Home Server Gina is a thin downstream Home Server Project image layer. It is **not a fork of Fedora CoreOS or Universal Blue uCore**, and it does not replace their operating-system engineering.
