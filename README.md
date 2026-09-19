@@ -14,6 +14,10 @@
 
 Home Server Gina is built on [Universal Blue uCore](https://github.com/ublue-os/ucore) LTS, with a deliberately small home-server administration and UPS tooling layer added on top.
 
+## Announcements
+
+2026.08.18 - [Homebrew](https://github.com/ublue-os/brew) integrated to Gina, few packages been removed like micro, btop, fastfetch, superfile. Installation availeble via `brew install <package_name>`
+
 ## Upstream foundation
 
 We chose Universal Blue uCore deliberately.
