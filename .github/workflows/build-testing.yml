@@ -1,5 +1,5 @@
 ---
-name: Build signed Home Server Gina testing images
+name: testing
 
 on:
   workflow_dispatch:
