@@ -39,17 +39,15 @@ dnf5 install -y "${extra_packages[@]}"
 # ============================================================
 #
 # NetBird's RPM %post tries to install and start its systemd
-# service. That is appropriate on a running host but not while
-# composing a bootc image.
-#
-# Install the RPM payload without package scriptlets.
-# Runtime configuration and service activation remain an
-# explicit host-side action.
+# service. Starting a live daemon is not appropriate while composing
+# a bootc image, so install the RPM payload without package scriptlets,
+# then use NetBird's supported CLI to install the service definition
+# explicitly and enable it for normal boot-time availability.
 
 dnf5 --setopt=tsflags=noscripts install -y "${NETBIRD_PACKAGE}"
 
-# The generic Gina image must not connect or auto-enable NetBird.
-systemctl disable netbird.service 2>/dev/null || true
+netbird service install
+systemctl enable netbird.service
 
 
 # ============================================================
@@ -94,6 +92,8 @@ command -v upsc
 command -v nut-scanner
 command -v powertop
 command -v netbird
+test -f /etc/systemd/system/netbird.service
+test "$(systemctl is-enabled netbird.service)" = "enabled"
 command -v file
 command -v git
 command -v zstd
@@ -135,7 +135,7 @@ source /usr/lib/os-release
 # - enable/configure NUT
 # - add UPS credentials/hardware-specific settings
 # - configure/connect NetBird
-# - install/start the NetBird service
+# - start the NetBird service during image composition
 # - run powertop --auto-tune
 
 
