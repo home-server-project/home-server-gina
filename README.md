@@ -98,7 +98,7 @@ For UPSide configuration and troubleshooting, see [`docs/nut-upside-coreos-troub
 
 Upstream uCore already includes Tailscale. Gina additionally provides the native [NetBird](https://github.com/netbirdio/netbird) client for users who prefer NetBird or operate their own NetBird infrastructure.
 
-No NetBird account, setup key or management-server configuration is included. NetBird is installed but deliberately left disabled and unconfigured.
+No NetBird account, setup key or management-server configuration is included. NetBird is installed with its system service enabled, but remains unenrolled and unconfigured until the administrator connects it.
 
 ## Kernel scope
 
