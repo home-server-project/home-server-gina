@@ -46,8 +46,7 @@ dnf5 install -y "${extra_packages[@]}"
 
 dnf5 --setopt=tsflags=noscripts install -y "${NETBIRD_PACKAGE}"
 
-netbird service install
-systemctl enable netbird.service
+SYSTEMD_OFFLINE=1 netbird service install
 
 
 # ============================================================
