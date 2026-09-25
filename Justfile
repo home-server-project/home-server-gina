@@ -118,7 +118,9 @@ build $target_image=image_name $tag=default_tag:
             ;;
     esac
 
-    # Home Server Packages are consumed by their moving channel tags.\n    # home-server-packages owns upstream VERSION + COMMIT resolution.\n    UPSIDE_PACKAGE_IMAGE="${UPSIDE_PACKAGE_IMAGE:-ghcr.io/home-server-project/cockpit-upside:stable}"
+    # Home Server Packages are consumed by their moving channel tags.
+    # home-server-packages owns upstream VERSION + COMMIT resolution.
+    UPSIDE_PACKAGE_IMAGE="${UPSIDE_PACKAGE_IMAGE:-ghcr.io/home-server-project/cockpit-upside:stable}"
     BREW_IMAGE="${BREW_IMAGE:-$(resolve_package_ref ghcr.io/ublue-os/brew:latest)}"
 
     command -v cosign >/dev/null
