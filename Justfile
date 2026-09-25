@@ -118,7 +118,9 @@ build $target_image=image_name $tag=default_tag:
             ;;
     esac
 
-    UPSIDE_PACKAGE_IMAGE="${UPSIDE_PACKAGE_IMAGE:-$(resolve_package_ref ghcr.io/home-server-project/cockpit-upside:stable)}"
+    # Home Server Packages are consumed by their moving channel tags.
+    # home-server-packages owns upstream VERSION + COMMIT resolution.
+    UPSIDE_PACKAGE_IMAGE="${UPSIDE_PACKAGE_IMAGE:-ghcr.io/home-server-project/cockpit-upside:stable}"
     BREW_IMAGE="${BREW_IMAGE:-$(resolve_package_ref ghcr.io/ublue-os/brew:latest)}"
 
     command -v cosign >/dev/null
@@ -145,7 +147,7 @@ build $target_image=image_name $tag=default_tag:
     fi
 
     if [[ "${BUILD_TARGET}" == "home-server-gina-hci" ]]; then
-        VIRTUI_MANAGER_PACKAGE_IMAGE="${VIRTUI_MANAGER_PACKAGE_IMAGE:-$(resolve_package_ref ghcr.io/home-server-project/virtui-manager:stable)}"
+        VIRTUI_MANAGER_PACKAGE_IMAGE="${VIRTUI_MANAGER_PACKAGE_IMAGE:-ghcr.io/home-server-project/virtui-manager:stable}"
         BUILD_ARGS+=(
             "--build-arg"
             "VIRTUI_MANAGER_PACKAGE_IMAGE=${VIRTUI_MANAGER_PACKAGE_IMAGE}"
