@@ -93,6 +93,13 @@ command -v powertop
 command -v netbird
 test -f /etc/systemd/system/netbird.service
 test "$(systemctl is-enabled netbird.service)" = "enabled"
+
+# Keep NetBird's stdout/stderr targets usable after /var is initialized on boot.
+netbird_logs_dropin=/usr/lib/systemd/system/netbird.service.d/10-home-server-gina-logs.conf
+test -f "${netbird_logs_dropin}"
+grep -Fqx '[Service]' "${netbird_logs_dropin}"
+grep -Fqx 'LogsDirectory=netbird' "${netbird_logs_dropin}"
+
 command -v file
 command -v git
 command -v zstd
