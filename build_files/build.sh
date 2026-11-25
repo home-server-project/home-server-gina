@@ -100,6 +100,12 @@ test -f "${netbird_logs_dropin}"
 grep -Fqx '[Service]' "${netbird_logs_dropin}"
 grep -Fqx 'LogsDirectory=netbird' "${netbird_logs_dropin}"
 
+# Keep libvirt secret state available across bootc image upgrades. /var is
+# persistent, so directories introduced by a newer image need tmpfiles policy.
+libvirt_secrets_tmpfiles=/usr/lib/tmpfiles.d/home-server-gina-libvirt-secrets.conf
+test -f "${libvirt_secrets_tmpfiles}"
+grep -Fqx 'd /var/lib/libvirt/secrets 0700 root root - -' "${libvirt_secrets_tmpfiles}"
+
 command -v file
 command -v git
 command -v zstd
